@@ -1,0 +1,59 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %} Home {% endblock %}
+{% block content %}
+    <article class="media content-section">
+        <img class="rounded-circle account-img" src={{ object.author.profile.image.url }}>
+      <div class="media-body">
+        <div class="article-metadata">
+          <a class="mr-2" href=
+             {% if user.username != object.author.username %}
+                {% url 'viewProfile' object.author.username %}
+            {% else %}
+                {% url 'Profile' %}
+            {% endif %}
+          >{{ object.author }}</a>
+          <small class="text-muted">{{ object.date | date:'F, d Y'}}</small>
+        </div>
+        <h2>{{ object.title }}</h2>
+        <p class="article-content">{{ object.content }}</p>
+      </div>
+    </article>
+    {% if object.author.pk == user.pk %}
+        <div>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'Update' object.pk %}">Update</a>
+            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'Delete' object.pk %}">Delete</a>
+        </div>
+    {% endif %}
+    <div class="content-section mt-4">
+        <fieldset class="form-group">
+            <legend class="border-bottom pb-2">Comment</legend>
+        </fieldset>
+        {% for cmt in comments %}
+            <article class="media comment-section">
+                <img class="rounded-circle comment-img" src={{ cmt.user.profile.image.url }}>
+              <div class="media-body">
+                <div class="mb-2">
+                  <a class="mr-2" href=
+                     {% if user.username != cmt.user.username %}
+                        {% url 'viewProfile' cmt.user.username %}
+                    {% else %}
+                        {% url 'Profile' %}
+                    {% endif %}
+                  >{{ cmt.user }}</a>
+                </div>
+                <p style="border:1px black solid; padding-left:4px; padding-right:4px; padding-bottom:2px; display:inline;">{{ cmt.comment }}</p>
+              </div>
+            </article>
+        {% endfor %}
+        <form method="post">
+            {% csrf_token %}
+            {{form | crispy}}
+            <div class="form-group pt-2">
+                <button type="submit" class="btn btn-outline-info">
+                    post
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
